@@ -1,9 +1,8 @@
-# PyTorch Implementation of Deep SVDD
-This repository provides a [PyTorch](https://pytorch.org/) implementation of the *Deep SVDD* method presented in our
-ICML 2018 paper ”Deep One-Class Classification”.
+# Modifying DeepSVDD for to work on the MRNet dataset. 
 
 
-## Citation and Contact
+
+## Citation 
 You find a PDF of the Deep One-Class Classification ICML 2018 paper at 
 [http://proceedings.mlr.press/v80/ruff18a.html](http://proceedings.mlr.press/v80/ruff18a.html).
 
@@ -19,18 +18,6 @@ If you use our work, please also cite the paper:
 }
 ```
 
-If you would like to get in touch, please contact [contact@lukasruff.com](mailto:contact@lukasruff.com).
-
-
-## Abstract
-> > Despite the great advances made by deep learning in many machine learning problems, there is a relative dearth of 
-> > deep learning approaches for anomaly detection. Those approaches which do exist involve networks trained to perform 
-> > a task other than anomaly detection, namely generative models or compression, which are in turn adapted for use in 
-> > anomaly detection; they are not trained on an anomaly detection based objective. In this paper we introduce a new 
-> > anomaly detection method—Deep Support Vector Data Description—, which is trained on an anomaly detection based
-> > objective. The adaptation to the deep regime necessitates that our neural network and training procedure satisfy 
-> > certain properties, which we demonstrate theoretically. We show the effectiveness of our method on MNIST and
-> > CIFAR-10 image benchmark datasets as well as on the detection of adversarial examples of GTSRB stop signs.
 
 
 ## Installation
