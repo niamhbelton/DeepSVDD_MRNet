@@ -6,7 +6,7 @@ from .base_net import BaseNet
 class BaseTrainer(ABC):
     """Trainer base class."""
 
-    def __init__(self, optimizer_name: str, lr: float, n_epochs: int, lr_milestones: tuple, batch_size: int,
+    def __init__(self, dataset_name: str, optimizer_name: str, lr: float, n_epochs: int, lr_milestones: tuple, batch_size: int,
                  weight_decay: float, device: str, n_jobs_dataloader: int):
         super().__init__()
         self.optimizer_name = optimizer_name

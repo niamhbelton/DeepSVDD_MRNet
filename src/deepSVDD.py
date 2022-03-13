@@ -25,7 +25,7 @@ class DeepSVDD(object):
         results: A dictionary to save the results.
     """
 
-    def __init__(self, objective: str = 'one-class', nu: float = 0.1):
+    def __init__(self, dataset_name, objective: str = 'one-class', nu: float = 0.1):
         """Inits DeepSVDD with one of the two objectives and hyperparameter nu."""
 
         assert objective in ('one-class', 'soft-boundary'), "Objective must be either 'one-class' or 'soft-boundary'."
@@ -57,13 +57,13 @@ class DeepSVDD(object):
         self.net_name = net_name
         self.net = build_network(net_name)
 
-    def train(self, dataset: BaseADDataset, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 50,
+    def train(self, dataset_name, dataset: BaseADDataset, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 50,
               lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
               n_jobs_dataloader: int = 0):
         """Trains the Deep SVDD model on the training data."""
 
         self.optimizer_name = optimizer_name
-        self.trainer = DeepSVDDTrainer(self.objective, self.R, self.c, self.nu, optimizer_name, lr=lr,
+        self.trainer = DeepSVDDTrainer(self.objective, self.R, self.c, self.nu, dataset_name, optimizer_name, lr=lr,
                                        n_epochs=n_epochs, lr_milestones=lr_milestones, batch_size=batch_size,
                                        weight_decay=weight_decay, device=device, n_jobs_dataloader=n_jobs_dataloader)
         # Get the model
@@ -72,7 +72,7 @@ class DeepSVDD(object):
         self.c = self.trainer.c.cpu().data.numpy().tolist()  # get list
         self.results['train_time'] = self.trainer.train_time
 
-    def test(self, dataset: BaseADDataset, device: str = 'cuda', n_jobs_dataloader: int = 0):
+    def test(self, dataset_name, dataset: BaseADDataset, device: str = 'cuda', n_jobs_dataloader: int = 0):
         """Tests the Deep SVDD model on the test data."""
 
         if self.trainer is None:
@@ -85,18 +85,18 @@ class DeepSVDD(object):
         self.results['test_time'] = self.trainer.test_time
         self.results['test_scores'] = self.trainer.test_scores
 
-    def pretrain(self, dataset: BaseADDataset, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 100,
+    def pretrain(self, dataset_name, dataset: BaseADDataset, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 100,
                  lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
                  n_jobs_dataloader: int = 0):
         """Pretrains the weights for the Deep SVDD network \phi via autoencoder."""
 
         self.ae_net = build_autoencoder(self.net_name)
         self.ae_optimizer_name = optimizer_name
-        self.ae_trainer = AETrainer(optimizer_name, lr=lr, n_epochs=n_epochs, lr_milestones=lr_milestones,
+        self.ae_trainer = AETrainer(dataset_name=dataset_name, optimizer_name=optimizer_name, lr=lr, n_epochs=n_epochs, lr_milestones=lr_milestones,
                                     batch_size=batch_size, weight_decay=weight_decay, device=device,
                                     n_jobs_dataloader=n_jobs_dataloader)
-        self.ae_net = self.ae_trainer.train(dataset, self.ae_net)
-        self.ae_trainer.test(dataset, self.ae_net)
+        self.ae_net = self.ae_trainer.train(dataset_name, dataset, self.ae_net)
+        self.ae_trainer.test(dataset_name, dataset, self.ae_net)
         self.init_network_weights_from_pretraining()
 
     def init_network_weights_from_pretraining(self):

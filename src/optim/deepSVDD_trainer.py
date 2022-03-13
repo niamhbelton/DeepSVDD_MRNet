@@ -13,10 +13,10 @@ import numpy as np
 
 class DeepSVDDTrainer(BaseTrainer):
 
-    def __init__(self, objective, R, c, nu: float, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 150,
+    def __init__(self,  objective, R, c, nu: float, dataset_name: str = 'mnist', optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 150,
                  lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
                  n_jobs_dataloader: int = 0):
-        super().__init__(optimizer_name, lr, n_epochs, lr_milestones, batch_size, weight_decay, device,
+        super().__init__(dataset_name, optimizer_name, lr, n_epochs, lr_milestones, batch_size, weight_decay, device,
                          n_jobs_dataloader)
 
         assert objective in ('one-class', 'soft-boundary'), "Objective must be either 'one-class' or 'soft-boundary'."

@@ -114,7 +114,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     dataset = load_dataset(dataset_name, data_path, normal_class)
 
     # Initialize DeepSVDD model and set neural network \phi
-    deep_SVDD = DeepSVDD(cfg.settings['objective'], cfg.settings['nu'])
+    deep_SVDD = DeepSVDD(dataset_name, cfg.settings['objective'], cfg.settings['nu'])
     deep_SVDD.set_network(net_name)
     # If specified, load Deep SVDD model (radius R, center c, network weights, and possibly autoencoder weights)
     if load_model:
@@ -132,7 +132,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
         logger.info('Pretraining weight decay: %g' % cfg.settings['ae_weight_decay'])
 
         # Pretrain model on dataset (via autoencoder)
-        deep_SVDD.pretrain(dataset,
+        deep_SVDD.pretrain(dataset_name, dataset,
                            optimizer_name=cfg.settings['ae_optimizer_name'],
                            lr=cfg.settings['ae_lr'],
                            n_epochs=cfg.settings['ae_n_epochs'],
@@ -151,7 +151,8 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
     logger.info('Training weight decay: %g' % cfg.settings['weight_decay'])
 
     # Train model on dataset
-    deep_SVDD.train(dataset,
+    deep_SVDD.train(dataset_name,
+                    dataset,
                     optimizer_name=cfg.settings['optimizer_name'],
                     lr=cfg.settings['lr'],
                     n_epochs=cfg.settings['n_epochs'],
@@ -162,7 +163,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, ob
                     n_jobs_dataloader=n_jobs_dataloader)
 
     # Test model
-    deep_SVDD.test(dataset, device=device, n_jobs_dataloader=n_jobs_dataloader)
+    deep_SVDD.test(dataset_name, dataset, device=device, n_jobs_dataloader=n_jobs_dataloader)
 
     # Plot most anomalous and most normal (within-class) test samples
     indices, labels, scores = zip(*deep_SVDD.results['test_scores'])

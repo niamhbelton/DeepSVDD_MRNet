@@ -2,7 +2,7 @@ from base.base_trainer import BaseTrainer
 from base.base_dataset import BaseADDataset
 from base.base_net import BaseNet
 from sklearn.metrics import roc_auc_score
-
+from torchvision import datasets, transforms
 import logging
 import time
 import torch
@@ -12,12 +12,12 @@ import numpy as np
 
 class AETrainer(BaseTrainer):
 
-    def __init__(self, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 150, lr_milestones: tuple = (),
+    def __init__(self, dataset_name: str = 'mnist', optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 150, lr_milestones: tuple = (),
                  batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda', n_jobs_dataloader: int = 0):
-        super().__init__(optimizer_name, lr, n_epochs, lr_milestones, batch_size, weight_decay, device,
+        super().__init__(dataset_name, optimizer_name, lr, n_epochs, lr_milestones, batch_size, weight_decay, device,
                          n_jobs_dataloader)
 
-    def train(self, dataset: BaseADDataset, ae_net: BaseNet):
+    def train(self, dataset_name, dataset: BaseADDataset, ae_net: BaseNet):
         logger = logging.getLogger()
 
         # Set device for network
@@ -48,6 +48,15 @@ class AETrainer(BaseTrainer):
             epoch_start_time = time.time()
             for data in train_loader:
                 inputs, _, _ = data
+
+                if dataset_name == 'mrnet':
+                    inputs = inputs.squeeze(0)[:,0,:,:].unsqueeze(1)
+                    augmentor=transforms.Compose([
+                     transforms.Resize((28,28))])
+                    inputs = augmentor(inputs)
+
+
+
                 inputs = inputs.to(self.device)
 
                 # Zero the network parameter gradients
@@ -74,7 +83,7 @@ class AETrainer(BaseTrainer):
 
         return ae_net
 
-    def test(self, dataset: BaseADDataset, ae_net: BaseNet):
+    def test(self, dataset_name, dataset: BaseADDataset, ae_net: BaseNet):
         logger = logging.getLogger()
 
         # Set device for network
@@ -93,6 +102,13 @@ class AETrainer(BaseTrainer):
         with torch.no_grad():
             for data in test_loader:
                 inputs, labels, idx = data
+
+                if dataset_name == 'mrnet':
+                    inputs = inputs.squeeze(0)[:,0,:,:].unsqueeze(1)
+                    augmentor=transforms.Compose([
+                     transforms.Resize((28,28))])
+                    inputs = augmentor(inputs)
+
                 inputs = inputs.to(self.device)
                 outputs = ae_net(inputs)
                 scores = torch.sum((outputs - inputs) ** 2, dim=tuple(range(1, outputs.dim())))
